@@ -1,0 +1,43 @@
+{
+  "name": "agent-kernel",
+  "version": "0.1.0",
+  "description": "Multi-Agent traffic control layer - resource scheduling, priority arbitration, deadlock detection, and concurrency primitives for AI agent systems",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "agent",
+    "multi-agent",
+    "scheduler",
+    "deadlock",
+    "concurrency",
+    "resource-management",
+    "priority",
+    "orchestration",
+    "llm",
+    "agent-os"
+  ],
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0",
+    "rimraf": "^6.0.0",
+    "@types/node": "^22.0.0"
+  }
+}
