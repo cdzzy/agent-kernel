@@ -14,6 +14,20 @@ export { AgentSemaphore } from './concurrency/semaphore.js';
 export { AgentRWLock } from './concurrency/rw-lock.js';
 export { AgentBarrier } from './concurrency/barrier.js';
 
+// Workflow engine
+export {
+  Workflow,
+  Pipeline,
+  createPipeline,
+  createParallelWorkflow,
+} from './workflow.js';
+export type {
+  WorkflowStep,
+  WorkflowResults,
+  WorkflowOptions,
+  StepId,
+} from './workflow.js';
+
 // Types
 export { TypedEventEmitter, PRIORITY_VALUES } from './types.js';
 export type {
