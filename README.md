@@ -176,12 +176,10 @@ const scheduler = new Scheduler({
 
 - [ ] Distributed mode (multi-node kernel cluster)
 - [ ] OpenTelemetry tracing integration
-- [x] ~~Kernel inspection CLI~~ ✅ (src/kernel-cli.ts)
+- [ ] Kernel inspection CLI (`agent-kernel status`, `agent-kernel top`)
 - [ ] Work-stealing scheduler for load balancing
 - [ ] Persistent task queue (survive kernel restarts)
 - [ ] Agent health checks and auto-restart policies
-- [x] ~~MCP Tool Registry~~ ✅ (tool discovery and management, inspired by Skill_Seekers)
-- [x] **A2A Agent Card Registry** (register kernel agents as A2A discoverable endpoints, inspired by a2a-protocol.org)
 
 ---
 
