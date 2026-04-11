@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+﻿import { randomUUID } from 'node:crypto';
 import type {
   AgentId,
   TaskId,
@@ -19,6 +19,7 @@ const DEFAULT_CONFIG: SchedulerConfig = {
   taskTimeout: undefined,
   agingInterval: 5000,
   agingBoost: 5,
+  maxCompletedHistory: 1000,  // Limit completed tasks to prevent memory leak
 };
 
 /**
@@ -31,7 +32,7 @@ const DEFAULT_CONFIG: SchedulerConfig = {
  * - round-robin: cycle through agents equally
  */
 export class Scheduler {
-  private config: SchedulerConfig;
+  private config: Required<SchedulerConfig>;
   private queue: TaskDescriptor[] = [];
   private running = new Map<TaskId, TaskDescriptor>();
   private completed: TaskDescriptor[] = [];
@@ -261,6 +262,9 @@ export class Scheduler {
       this.running.delete(task.id);
       this.completed.push(task);
 
+      // Cleanup completed tasks to prevent memory leak
+      this.trimCompletedHistory();
+
       // Release any resources held
       if (this.resourceManager) {
         this.resourceManager.releaseAll(task.agentId);
@@ -282,6 +286,19 @@ export class Scheduler {
       // Boost 1 point per aging interval of waiting
       const agingBoost = Math.floor(waitMs / (this.config.agingInterval ?? 5000)) * boost;
       task.effectivePriority = Math.min(task.priority + agingBoost, 200);
+    }
+  }
+
+  /**
+   * Trim completed tasks history to prevent memory leak.
+   * Keeps only the most recent maxCompletedHistory tasks.
+   */
+  private trimCompletedHistory(): void {
+    const maxHistory = this.config.maxCompletedHistory ?? 1000;
+    if (this.completed.length > maxHistory) {
+      // Remove oldest tasks (keep only the most recent)
+      const toRemove = this.completed.length - maxHistory;
+      this.completed.splice(0, toRemove);
     }
   }
 
@@ -308,3 +325,4 @@ export class Scheduler {
     return aborted;
   }
 }
+
