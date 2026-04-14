@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "agent-kernel",
   "version": "0.1.0",
   "description": "Multi-Agent traffic control layer - resource scheduling, priority arbitration, deadlock detection, and concurrency primitives for AI agent systems",
@@ -15,7 +15,8 @@
     "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
     "clean": "rimraf dist"
   },
   "keywords": [
@@ -41,3 +42,4 @@
     "@types/node": "^22.0.0"
   }
 }
+
