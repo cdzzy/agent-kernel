@@ -35,7 +35,7 @@ export class Scheduler {
   private config: Required<SchedulerConfig>;
   private queue: TaskDescriptor[] = [];
   private running = new Map<TaskId, TaskDescriptor>();
-  private completed: TaskDescriptor[] = [];
+  private completed = new Map<TaskId, TaskDescriptor>(); // O(1) lookup
   private agents = new Map<AgentId, AgentDescriptor>();
   private agentTaskCounts = new Map<AgentId, number>(); // for fair-share
   private roundRobinIndex = 0;
@@ -110,7 +110,7 @@ export class Scheduler {
   getTask(taskId: TaskId): TaskDescriptor | undefined {
     return this.queue.find((t) => t.id === taskId)
       ?? this.running.get(taskId)
-      ?? this.completed.find((t) => t.id === taskId);
+      ?? this.completed.get(taskId);
   }
 
   getQueueLength(): number {
@@ -122,11 +122,16 @@ export class Scheduler {
   }
 
   getStats(): { queued: number; running: number; completed: number; failed: number } {
+    let completed = 0, failed = 0;
+    for (const t of this.completed.values()) {
+      if (t.status === 'completed') completed++;
+      else if (t.status === 'failed') failed++;
+    }
     return {
       queued: this.queue.length,
       running: this.running.size,
-      completed: this.completed.filter((t) => t.status === 'completed').length,
-      failed: this.completed.filter((t) => t.status === 'failed').length,
+      completed,
+      failed,
     };
   }
 
@@ -216,7 +221,7 @@ export class Scheduler {
 
   private dependenciesMet(task: TaskDescriptor): boolean {
     for (const depId of task.dependencies) {
-      const dep = this.completed.find((t) => t.id === depId);
+      const dep = this.completed.get(depId);
       if (!dep || dep.status !== 'completed') return false;
     }
     return true;
@@ -260,7 +265,7 @@ export class Scheduler {
       this.emitter?.emit('task:failed', task);
     } finally {
       this.running.delete(task.id);
-      this.completed.push(task);
+      this.completed.set(task.id, task);
 
       // Cleanup completed tasks to prevent memory leak
       this.trimCompletedHistory();
@@ -295,10 +300,13 @@ export class Scheduler {
    */
   private trimCompletedHistory(): void {
     const maxHistory = this.config.maxCompletedHistory ?? 1000;
-    if (this.completed.length > maxHistory) {
+    if (this.completed.size > maxHistory) {
       // Remove oldest tasks (keep only the most recent)
-      const toRemove = this.completed.length - maxHistory;
-      this.completed.splice(0, toRemove);
+      const completed = [...this.completed.values()];
+      const toRemove = completed.length - maxHistory;
+      for (let i = 0; i < toRemove; i++) {
+        this.completed.delete(completed[i].id);
+      }
     }
   }
 
@@ -317,7 +325,7 @@ export class Scheduler {
     for (const task of toRemove) {
       task.status = 'cancelled';
       task.error = new Error(reason ?? `Agent "${agentId}" tasks aborted`);
-      this.completed.push(task);
+      this.completed.set(task.id, task);
       this.emitter?.emit('task:cancelled', task);
       aborted++;
     }
