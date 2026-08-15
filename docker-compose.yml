@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  agent-kernel:
+    build: .
+    image: ghcr.io/cdzzy/agent-kernel:latest
+    ports:
+      - "8080:8080"   # Agent management REST API
+      - "9090:9090"   # Prometheus metrics
+      - "3000:3000"   # Optional: Web UI dashboard
+    environment:
+      - KERNEL_MODE=orchestrator
+      - MAX_CONCURRENT_AGENTS=50
+      - LLM_PROVIDER=openai
+      - LLM_MODEL=gpt-4o
+      - LLM_API_KEY=${OPENAI_API_KEY:-}
+      - LOG_LEVEL=info
+    volumes:
+      - ./kernel-config.yaml:/app/config.yaml:ro
+      - kernel-state:/app/state
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8080/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    profiles: ["monitoring"]
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    profiles: ["monitoring"]
+
+volumes:
+  kernel-state:

@@ -18,7 +18,7 @@
  *   const agent = createMCPNode('my-agent', registry);
  */
 
-import { AgentId } from './types';
+import { AgentId } from './types.js';
 
 // ---- MCP Tool Types ----
 
@@ -371,7 +371,7 @@ export interface MCPNode {
 
 // ---- Well-known Tool Templates ----
 
-export const WELL_KNOWN_TOOLS = {
+export const WELL_KNOWN_TOOLS: Record<string, MCPToolDefinition> = {
   web_search: {
     name: 'web_search',
     description: 'Search the web for information',

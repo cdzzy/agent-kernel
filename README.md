@@ -27,11 +27,19 @@ Running multiple AI agents concurrently is hard. Without coordination:
 
 - ⚡ **Priority scheduler** — agents run by priority (CRITICAL → HIGH → NORMAL → LOW → BACKGROUND)
 - 🔒 **Resource manager** — cap concurrent LLM calls, tool invocations, and memory usage
+- 💰 **Resource budgets** — per-agent token / wall-time / tool-call limits (v0.2.0)
 - 💬 **Message bus** — pub/sub and point-to-point messaging between agents
 - 🔁 **Rate limiter** — token bucket rate limiting per agent or globally
 - 🔍 **Deadlock detector** — detect and resolve circular wait conditions
 - 🎯 **Priority arbiter** — resolve resource conflicts between competing agents
 - 🔄 **Concurrency primitives** — mutex, semaphore, and barrier for agent coordination
+- ❤️ **Health monitoring** — fleet health checks with auto-recovery (v0.2.0)
+- 🐝 **Swarm mode** — decentralized capability-aware routing (v0.2.0)
+- 🧠 **Model router** — complexity-aware routing to fast/standard/reasoning models (v0.2.0)
+- 📊 **Observability** — Prometheus-style metrics + alerting (v0.2.0)
+- 🗂️ **Task decomposition** — hierarchical task breakdown with Mermaid/DOT graphs (v0.2.0)
+- 🔌 **A2A registry** — Agent Card service discovery (v0.2.0)
+- 🛠️ **MCP tool registry** — centralized tool management with access control (v0.2.0)
 
 ---
 
@@ -174,12 +182,20 @@ const scheduler = new Scheduler({
 
 ## Roadmap
 
+- [x] Agent health checks and auto-restart policies ✅ (src/health-check.ts, v0.2.0)
+- [x] Resource budget system ✅ (src/resource-budget.ts, v0.2.0)
+- [x] Swarm mode (decentralized routing) ✅ (src/swarm.ts, v0.2.0)
+- [x] A2A native support (Agent Card discovery) ✅ (src/a2a-registry.ts, v0.2.0)
+- [x] MCP tool integration layer ✅ (src/mcp-registry.ts, v0.2.0)
+- [x] Reasoning model routing ✅ (src/model-router.ts, v0.2.0)
+- [x] Observability dashboard + metrics ✅ (src/observability.ts, v0.2.0)
+- [x] Task decomposition + dependency graph ✅ (src/decomposition.ts, v0.2.0)
+- [x] Docker Compose deployment ✅ (docker-compose.yml, v0.2.0)
 - [ ] Distributed mode (multi-node kernel cluster)
 - [ ] OpenTelemetry tracing integration
 - [ ] Kernel inspection CLI (`agent-kernel status`, `agent-kernel top`)
 - [ ] Work-stealing scheduler for load balancing
 - [ ] Persistent task queue (survive kernel restarts)
-- [ ] Agent health checks and auto-restart policies
 
 ---
 

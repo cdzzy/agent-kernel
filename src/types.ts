@@ -101,6 +101,7 @@ export interface SchedulerConfig {
   taskTimeout?: number;    // ms, default no timeout
   agingInterval?: number;  // ms, how often to boost starved tasks
   agingBoost?: number;     // priority points per aging tick
+  maxCompletedHistory?: number; // cap on retained completed tasks
 }
 
 // ---- Deadlock Detection Types ----
@@ -190,6 +191,9 @@ export interface KernelEvents {
   'agent:terminated': (agent: AgentDescriptor) => void;
   'agent:status-changed': (agentId: AgentId, oldStatus: AgentStatus, newStatus: AgentStatus) => void;
   'message': (message: AgentMessage) => void;
+  'health.degraded': (agentId: AgentId, health: unknown) => void;
+  'health.critical': (agentId: AgentId, health: unknown) => void;
+  'budget-exceeded': (agentId: AgentId, resource: string, usage: number) => void;
 }
 
 export class TypedEventEmitter extends EventEmitter {

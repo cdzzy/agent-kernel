@@ -13,7 +13,7 @@ import type {
 import { PRIORITY_VALUES as PV } from './types.js';
 import type { ResourceManager } from './resource-manager.js';
 
-const DEFAULT_CONFIG: SchedulerConfig = {
+const DEFAULT_CONFIG: ResolvedSchedulerConfig = {
   strategy: 'priority',
   maxConcurrent: 10,
   taskTimeout: undefined,
@@ -21,6 +21,15 @@ const DEFAULT_CONFIG: SchedulerConfig = {
   agingBoost: 5,
   maxCompletedHistory: 1000,  // Limit completed tasks to prevent memory leak
 };
+
+interface ResolvedSchedulerConfig {
+  strategy: SchedulingStrategy;
+  maxConcurrent: number;
+  taskTimeout?: number;
+  agingInterval?: number;
+  agingBoost?: number;
+  maxCompletedHistory: number;
+}
 
 /**
  * Task Scheduler — orchestrates agent task execution.
@@ -32,7 +41,7 @@ const DEFAULT_CONFIG: SchedulerConfig = {
  * - round-robin: cycle through agents equally
  */
 export class Scheduler {
-  private config: Required<SchedulerConfig>;
+  private config: ResolvedSchedulerConfig;
   private queue: TaskDescriptor[] = [];
   private running = new Map<TaskId, TaskDescriptor>();
   private completed = new Map<TaskId, TaskDescriptor>(); // O(1) lookup
