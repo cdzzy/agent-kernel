@@ -113,5 +113,5 @@ export class TaskDecomposer {
 }
 
 function sanitize(s: string): string {
-  return s.replace(/[\[\]{}()"<>|]/g, ' ').replace(/\s+/g, ' ').trim();
+  return s.replace(/[[\]{}()"<>|]/g, ' ').replace(/\s+/g, ' ').trim();
 }

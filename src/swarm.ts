@@ -6,7 +6,7 @@
  * the required capabilities (with optional fault tolerance via replication).
  */
 
-import type { AgentId, PriorityLevel } from './types.js';
+import type { AgentId } from './types.js';
 
 export interface SwarmAgentInfo {
   agentId: AgentId;

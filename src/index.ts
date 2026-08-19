@@ -63,6 +63,17 @@ export type { SubTask, DecompositionResult, DecompositionConfig } from './decomp
 // Self-evolution
 export { SelfEvolutionManager } from './self-evolution.js';
 
+// Scenario loader (YAML scenario specs)
+export { ScenarioLoader } from './scenario-loader.js';
+export type {
+  ScenarioSpec,
+  ScenarioKernelSpec,
+  ScenarioAgentSpec,
+  ScenarioTaskSpec,
+  ScenarioResourceSpec,
+  LoadedScenario,
+} from './scenario-loader.js';
+
 // Types
 export { TypedEventEmitter, PRIORITY_VALUES } from './types.js';
 export type {
