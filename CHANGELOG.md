@@ -2,6 +2,12 @@
 
 All notable changes to AgentKernel are documented in this file.
 
+## [0.3.0] - 2026-08-19
+
+### Added
+
+- **Kernel inspection CLI**: `agent-kernel status` / `agents` / `top` report fleet metrics, registered agents, resource state, and task summary. `--register` spawns demo agents. Typed `CliError`; bin entry lives in `cli-main.ts`.
+
 ## [0.2.0] - 2026-08-15
 
 ### Added

@@ -193,7 +193,7 @@ const scheduler = new Scheduler({
 - [x] Docker Compose deployment ✅ (docker-compose.yml, v0.2.0)
 - [ ] Distributed mode (multi-node kernel cluster)
 - [ ] OpenTelemetry tracing integration
-- [ ] Kernel inspection CLI (`agent-kernel status`, `agent-kernel top`)
+- [x] **Kernel inspection CLI** (`agent-kernel status`, `agent-kernel agents`, `agent-kernel top`) ✅ (v0.3.0)
 - [ ] Work-stealing scheduler for load balancing
 - [ ] Persistent task queue (survive kernel restarts)
 

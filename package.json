@@ -1,10 +1,13 @@
 {
   "name": "agent-kernel",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Multi-Agent traffic control layer - resource scheduling, priority arbitration, deadlock detection, and concurrency primitives for AI agent systems",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "agent-kernel": "./dist/cli-main.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
