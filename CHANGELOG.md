@@ -2,6 +2,12 @@
 
 All notable changes to AgentKernel are documented in this file.
 
+## [0.6.0] - 2026-09-04
+
+### Added
+
+- **Persistent task queue** (`#`Roadmap): `PersistentTaskQueue` write-ahead journals every submission to a JSONL file and re-submits unfinished tasks into a fresh kernel (`recover`) — at-least-once semantics with dependency remapping across restarts. Handlers are referenced by name via a registry (`registerHandler`) since closures cannot be serialized. `compact()` trims the journal to pending work; `recoverFailed` optionally retries tasks that failed before the crash.
+
 ## [0.5.0] - 2026-09-04
 
 ### Added

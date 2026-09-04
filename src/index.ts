@@ -64,6 +64,17 @@ export type { SubTask, DecompositionResult, DecompositionConfig } from './decomp
 export { WorkStealingPool } from './work-stealer.js';
 export type { WorkStealingConfig, PendingTask, PoolStats, StealResult } from './work-stealer.js';
 
+// Persistent task queue (crash recovery)
+export { PersistentTaskQueue } from './persistent-queue.js';
+export type {
+  JournaledTask,
+  JournalEntry,
+  RecoveryResult,
+  PersistentQueueOptions,
+  QueueSubmitSpec,
+  HandlerFn,
+} from './persistent-queue.js';
+
 // TraceShield integration (audit bridge)
 export { attachTraceShield } from './integrations/traceshield.js';
 export type {

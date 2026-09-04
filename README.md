@@ -196,7 +196,7 @@ const scheduler = new Scheduler({
 - [ ] OpenTelemetry tracing integration
 - [x] **Kernel inspection CLI** (`agent-kernel status`, `agent-kernel agents`, `agent-kernel top`) ✅ (v0.3.0)
 - [x] **Work-stealing scheduler** (`WorkStealingPool` — idle workers steal from the busiest queue, rebalanced through the kernel) ✅ (v0.4.0)
-- [ ] Persistent task queue (survive kernel restarts)
+- [x] **Persistent task queue** (`PersistentTaskQueue` — write-ahead journal, at-least-once recovery, dependency remapping) ✅ (v0.6.0)
 
 ---
 
