@@ -191,6 +191,7 @@ const scheduler = new Scheduler({
 - [x] Observability dashboard + metrics ✅ (src/observability.ts, v0.2.0)
 - [x] Task decomposition + dependency graph ✅ (src/decomposition.ts, v0.2.0)
 - [x] Docker Compose deployment ✅ (docker-compose.yml, v0.2.0)
+- [x] **TraceShield audit bridge** (`attachTraceShield` — every task, deadlock, budget, and health event lands in the tamper-evident audit trail) ✅ (v0.5.0)
 - [ ] Distributed mode (multi-node kernel cluster)
 - [ ] OpenTelemetry tracing integration
 - [x] **Kernel inspection CLI** (`agent-kernel status`, `agent-kernel agents`, `agent-kernel top`) ✅ (v0.3.0)

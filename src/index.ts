@@ -64,6 +64,16 @@ export type { SubTask, DecompositionResult, DecompositionConfig } from './decomp
 export { WorkStealingPool } from './work-stealer.js';
 export type { WorkStealingConfig, PendingTask, PoolStats, StealResult } from './work-stealer.js';
 
+// TraceShield integration (audit bridge)
+export { attachTraceShield } from './integrations/traceshield.js';
+export type {
+  ShieldRecorderLike,
+  ShieldViolation,
+  TraceShieldBridgeOptions,
+  KernelTraceBinding,
+  SpanErrorLike,
+} from './integrations/traceshield.js';
+
 // Self-evolution
 export { SelfEvolutionManager } from './self-evolution.js';
 

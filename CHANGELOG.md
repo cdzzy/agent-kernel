@@ -2,6 +2,12 @@
 
 All notable changes to AgentKernel are documented in this file.
 
+## [0.5.0] - 2026-09-04
+
+### Added
+
+- **TraceShield audit bridge**: `attachTraceShield(kernel, recorder, options)` streams kernel lifecycle events into a traceshield-compatible `TraceRecorder` — every task becomes a trace/span (completed/failed with error details), and deadlocks, budget overruns, and health alarms become `StoredViolation`s (opt-in per category). Recorder is duck-typed: no hard dependency on traceshield.
+
 ## [0.4.0] - 2026-08-27
 
 ### Added
