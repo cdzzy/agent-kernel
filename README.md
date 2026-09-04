@@ -213,6 +213,16 @@ examples/
 
 ---
 
+## Flagship Example
+
+See [`examples/flagship/`](./examples/flagship/) — a complete **Agent OS** walkthrough wiring three layers of the stack together: agent-kernel schedules a researcher → writer → reviewer pipeline, [traceshield](https://github.com/cdzzy/traceshield) audits every task into a hash-chain-verified log (rendered as a Mermaid attribution graph), and [engram](https://github.com/cdzzy/engram) provides the shared long-term memory the agents collaborate through.
+
+```bash
+cd examples/flagship
+npm install   # builds the git-installed stack automatically
+npm start
+```
+
 ## License
 
 MIT © cdzzy

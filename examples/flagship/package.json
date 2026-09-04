@@ -1,0 +1,21 @@
+{
+  "name": "agent-os-flagship",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Flagship example wiring the Agent OS stack: agent-kernel (scheduling) + traceshield (auditing) + engram (memory)",
+  "scripts": {
+    "postinstall": "node scripts/bootstrap.mjs",
+    "start": "tsx flagship.ts"
+  },
+  "dependencies": {
+    "agent-kernel": "git+https://github.com/cdzzy/agent-kernel.git#v0.5.0",
+    "engram": "git+https://github.com/cdzzy/engram.git#v0.7.0",
+    "traceshield": "git+https://github.com/cdzzy/traceshield.git#v0.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0"
+  }
+}
