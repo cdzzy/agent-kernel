@@ -2,6 +2,12 @@
 
 All notable changes to AgentKernel are documented in this file.
 
+## [0.4.0] - 2026-08-27
+
+### Added
+
+- **Work-stealing scheduler**: `WorkStealingPool` gives each worker a local queue; idle workers steal from the busiest victim (BLAS-style, above a configurable threshold) and rebalance submits stolen work through the kernel so priorities and resource limits still apply. Optional auto-rebalance interval.
+
 ## [0.3.0] - 2026-08-19
 
 ### Added

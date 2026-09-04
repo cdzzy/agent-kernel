@@ -60,6 +60,10 @@ export type { ObservabilityMetrics, AlertRule, Counter } from './observability.j
 export { TaskDecomposer } from './decomposition.js';
 export type { SubTask, DecompositionResult, DecompositionConfig } from './decomposition.js';
 
+// Work-stealing scheduler
+export { WorkStealingPool } from './work-stealer.js';
+export type { WorkStealingConfig, PendingTask, PoolStats, StealResult } from './work-stealer.js';
+
 // Self-evolution
 export { SelfEvolutionManager } from './self-evolution.js';
 

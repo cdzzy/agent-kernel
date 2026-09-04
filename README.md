@@ -194,7 +194,7 @@ const scheduler = new Scheduler({
 - [ ] Distributed mode (multi-node kernel cluster)
 - [ ] OpenTelemetry tracing integration
 - [x] **Kernel inspection CLI** (`agent-kernel status`, `agent-kernel agents`, `agent-kernel top`) ✅ (v0.3.0)
-- [ ] Work-stealing scheduler for load balancing
+- [x] **Work-stealing scheduler** (`WorkStealingPool` — idle workers steal from the busiest queue, rebalanced through the kernel) ✅ (v0.4.0)
 - [ ] Persistent task queue (survive kernel restarts)
 
 ---
