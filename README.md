@@ -1,5 +1,8 @@
 # agent-kernel ⚙️
 
+> Part of the [Agent OS](https://github.com/cdzzy/agent-kernel/blob/main/docs/agent-os.md) suite — kernel · network · memory · policy · audit · testing
+
+
 **The operating system kernel for multi-agent systems.**
 
 Like an OS kernel manages processes, agent-kernel manages concurrent AI agents — scheduling, resource allocation, deadlock detection, and message routing.
