@@ -192,7 +192,7 @@ const scheduler = new Scheduler({
 - [x] Task decomposition + dependency graph ✅ (src/decomposition.ts, v0.2.0)
 - [x] Docker Compose deployment ✅ (docker-compose.yml, v0.2.0)
 - [x] **TraceShield audit bridge** (`attachTraceShield` — every task, deadlock, budget, and health event lands in the tamper-evident audit trail) ✅ (v0.5.0)
-- [ ] Distributed mode (multi-node kernel cluster)
+- [x] **Distributed mode** (`KernelHttpEndpoint` + `RemoteKernelClient` — expose a kernel over HTTP, execute tasks on remote machines with named handlers) ✅ (v0.7.0)
 - [ ] OpenTelemetry tracing integration
 - [x] **Kernel inspection CLI** (`agent-kernel status`, `agent-kernel agents`, `agent-kernel top`) ✅ (v0.3.0)
 - [x] **Work-stealing scheduler** (`WorkStealingPool` — idle workers steal from the busiest queue, rebalanced through the kernel) ✅ (v0.4.0)

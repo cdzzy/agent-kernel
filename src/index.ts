@@ -75,6 +75,15 @@ export type {
   HandlerFn,
 } from './persistent-queue.js';
 
+// Distributed mode — HTTP cluster nodes
+export { ClusterHandlerRegistry, KernelHttpEndpoint, RemoteKernelClient } from './cluster.js';
+export type {
+  KernelHttpEndpointOptions,
+  ClusterTaskSpec,
+  ClusterTaskInfo,
+  ClusterClientOptions,
+} from './cluster.js';
+
 // TraceShield integration (audit bridge)
 export { attachTraceShield } from './integrations/traceshield.js';
 export type {

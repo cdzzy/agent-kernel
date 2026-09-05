@@ -2,6 +2,12 @@
 
 All notable changes to AgentKernel are documented in this file.
 
+## [0.7.0] - 2026-09-04
+
+### Added
+
+- **Distributed mode — HTTP cluster nodes**: `KernelHttpEndpoint` exposes a kernel over HTTP (POST /tasks, GET /tasks/:id, GET /health, optional bearer-token auth); `RemoteKernelClient` submits tasks to remote kernels, polls for completion, and exposes `execute()` (submit+wait). Handlers are referenced by name via `ClusterHandlerRegistry` (closures stay local — tasks cross the wire as references + input).
+
 ## [0.6.0] - 2026-09-04
 
 ### Added
