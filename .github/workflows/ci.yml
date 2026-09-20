@@ -7,38 +7,33 @@ on:
     branches: [main, master]
 
 jobs:
-  test:
+  ci:
+    name: Node ${{ matrix.node-version }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
 
       - name: Type check
-        run: |
-          echo "=== TypeScript Version ==="
-          npx tsc --version
-          echo "=== TypeScript Errors ==="
-          npx tsc --noEmit 2>&1 || true
+        run: npm run typecheck
 
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm install
+      - name: Test
+        run: npm test
+
       - name: Build
-        run: |
-          echo "=== Build Output ==="
-          npx tsc 2>&1 || true
+        run: npm run build

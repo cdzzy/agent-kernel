@@ -1,9 +1,11 @@
 # agent-kernel ⚙️
 
-**多智能体系统的操作系统内核。**
+**面向 AI 智能体的运行时内核与调度层。**
 
-就像操作系统内核管理进程一样，agent-kernel 负责管理并发运行的 AI 智能体 —— 调度、资源分配、死锁检测和消息路由。
+就像操作系统内核管理进程一样，agent-kernel 负责管理并发运行的 AI 智能体 —— 抢占式调度、资源限额、死锁检测和消息路由。它是编排框架之下的基础设施层，而不是又一个竞争性的编排框架。
 
+[![npm](https://img.shields.io/npm/v/@cdzzy%2Fagent-kernel?color=red)](https://www.npmjs.com/package/@cdzzy/agent-kernel)
+[![CI](https://github.com/cdzzy/agent-kernel/actions/workflows/ci.yml/badge.svg)](https://github.com/cdzzy/agent-kernel/actions/workflows/ci.yml)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](tsconfig.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen)](tests/)
@@ -164,6 +166,25 @@ const scheduler = new Scheduler({
 
 ---
 
+## 与 LangGraph / Microsoft Agent Framework / AgentScope 的关系
+
+agent-kernel **不是**又一个编排框架 —— 它是这些编排框架之下的运行时层。
+
+| 层次 | 职责 |
+|------|------|
+| **编排框架** — LangGraph、Microsoft Agent Framework、AgentScope、CrewAI 等 | 图/工作流设计、状态机、提示词、智能体角色与任务交接 |
+| **agent-kernel**（本项目） | 抢占式调度、资源限额与预算、死锁检测、持久化任务队列 |
+
+具体来说：
+
+- **LangGraph** 把工作流编译成图并逐节点执行。agent-kernel 可以承载这段执行 —— 决定每个节点的工作*何时*运行、限制其 LLM/工具并发数，并检测图分支之间的死锁。
+- **Microsoft Agent Framework**（AutoGen 的后继者）负责协调多智能体工作流与对话。agent-kernel 为这些对话提供底层的调度与资源治理，避免一个高话痨智能体饿死 CRITICAL 级任务。
+- **AgentScope** 构建基于消息传递的多智能体应用。agent-kernel 在其消息层之下补充优先级调度、速率限制与死锁检测。
+
+编排框架回答"智能体做什么、工作流如何流转"；agent-kernel 回答"同时跑多少、谁抢占谁、资源耗尽时怎么办"。由于它是框架无关的，可以渐进式引入：把任意框架的执行步骤包进 `kernel.schedule(...)`，即可获得调度、限额与可观测性，而无需重写你的图或工作流。
+
+---
+
 ## 对比同类方案
 
 | 功能 | agent-kernel | LangGraph | AutoGen | CrewAI |
@@ -178,12 +199,21 @@ const scheduler = new Scheduler({
 
 ## 路线图
 
-- [ ] 分布式模式（多节点内核集群）
-- [ ] 集成 OpenTelemetry 链路追踪
-- [ ] 内核检查 CLI（`agent-kernel status`、`agent-kernel top`）
-- [ ] 负载均衡的工作窃取调度器
-- [ ] 持久化任务队列（支持内核重启后恢复）
-- [ ] 智能体健康检查与自动重启策略
+- [x] 智能体健康检查与自动重启策略 ✅（src/health-check.ts，v0.2.0）
+- [x] 资源预算系统 ✅（src/resource-budget.ts，v0.2.0）
+- [x] 蜂群模式（去中心化能力路由）✅（src/swarm.ts，v0.2.0）
+- [x] A2A 原生支持（Agent Card 服务发现）✅（src/a2a-registry.ts，v0.2.0）
+- [x] MCP 工具集成层 ✅（src/mcp-registry.ts，v0.2.0）
+- [x] 推理模型路由 ✅（src/model-router.ts，v0.2.0）
+- [x] 可观测性仪表盘 + 指标 ✅（src/observability.ts，v0.2.0）
+- [x] 任务分解 + 依赖图 ✅（src/decomposition.ts，v0.2.0）
+- [x] Docker Compose 部署 ✅（docker-compose.yml，v0.2.0）
+- [x] **TraceShield 审计桥接**（`attachTraceShield` — 每个任务、死锁、预算与健康事件都会落入防篡改审计日志）✅（v0.5.0）
+- [x] **内核检查 CLI**（`agent-kernel status`、`agent-kernel agents`、`agent-kernel top`）✅（v0.3.0）
+- [x] **工作窃取调度器**（`WorkStealingPool` — 空闲工作节点从最繁忙的队列窃取任务，经内核重新均衡）✅（v0.4.0）
+- [x] **持久化任务队列**（`PersistentTaskQueue` — 预写日志、至少一次恢复、依赖重映射）✅（v0.6.0）
+- [x] **分布式模式**（`KernelHttpEndpoint` + `RemoteKernelClient` — 通过 HTTP 暴露内核，在远程机器上以命名处理器执行任务）✅（v0.7.0）
+- [ ] OpenTelemetry 链路追踪集成
 
 ---
 

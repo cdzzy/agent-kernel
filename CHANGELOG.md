@@ -2,6 +2,17 @@
 
 All notable changes to AgentKernel are documented in this file.
 
+## [0.7.1] - 2026-09-20
+
+### Changed
+
+- README repositioned: Agent Kernel is described as a runtime kernel and scheduling layer for AI agents, with a new section on how it relates to LangGraph / Microsoft Agent Framework / AgentScope (English + Chinese, docs mirrored).
+
+### Fixed
+
+- CI no longer swallows type-check and build failures (the `npx tsc ... || true` shortcuts are gone); lint and test steps added, `npm install` replaced with `npm ci`.
+- Release workflow added: scoped `npm publish --access public` on `v*` tags, guarded on `NPM_TOKEN`.
+
 ## [0.7.0] - 2026-09-04
 
 ### Added

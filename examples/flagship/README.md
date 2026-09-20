@@ -1,6 +1,6 @@
-# Agent OS Flagship Example
+# Flagship Example
 
-One runnable story wiring three layers of the [Agent OS](https://github.com/cdzzy) stack together:
+One runnable story wiring three layers of the [cdzzy agent-infra](https://github.com/cdzzy) stack together:
 
 | Layer | Package | Role in this example |
 |-------|---------|---------------------|
@@ -32,7 +32,7 @@ graph LR
 
 ## The Python half of the stack
 
-The Agent OS suite also includes Python layers:
+The cdzzy agent-infra suite also includes Python layers:
 
 - [agentconfig](https://github.com/cdzzy/agentconfig) — business-language agent configuration with LLM-as-judge constraints
 - [agentlink](https://github.com/cdzzy/agentlink) — inter-agent messaging (WebSocket, A2A, streaming, DLQ)

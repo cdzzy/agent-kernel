@@ -1,13 +1,13 @@
 # agent-kernel ⚙️
 
-> Part of the [Agent OS](https://github.com/cdzzy/agent-kernel/blob/main/docs/agent-os.md) suite — kernel · network · memory · policy · audit · testing
+> One of six libraries in the [cdzzy agent-infra suite](https://github.com/cdzzy/agent-kernel/blob/main/docs/agent-os.md) — kernel · network · memory · policy · audit · testing
+
+**A runtime kernel and scheduling layer for AI agents.**
+
+Like an OS kernel manages processes, agent-kernel manages concurrent AI agents — preemptive scheduling, resource limits, deadlock detection, and persistent message routing. It is the infrastructure layer that orchestration frameworks run **on top of**, not a competing framework.
+
 [![npm](https://img.shields.io/npm/v/@cdzzy%2Fagent-kernel?color=red)](https://www.npmjs.com/package/@cdzzy/agent-kernel)
-
-
-**The operating system kernel for multi-agent systems.**
-
-Like an OS kernel manages processes, agent-kernel manages concurrent AI agents — scheduling, resource allocation, deadlock detection, and message routing.
-
+[![CI](https://github.com/cdzzy/agent-kernel/actions/workflows/ci.yml/badge.svg)](https://github.com/cdzzy/agent-kernel/actions/workflows/ci.yml)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](tsconfig.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen)](tests/)
@@ -172,6 +172,25 @@ const scheduler = new Scheduler({
 
 ---
 
+## Relationship to LangGraph / Microsoft Agent Framework / AgentScope
+
+agent-kernel is **not** another orchestration framework — it is the runtime layer those frameworks run on top of.
+
+| Layer | Responsibility |
+|-------|----------------|
+| **Orchestration frameworks** — LangGraph, Microsoft Agent Framework, AgentScope, CrewAI, … | Graph / workflow design, state machines, prompts, agent roles and handoffs |
+| **agent-kernel** (this project) | Preemptive scheduling, resource limits & budgets, deadlock detection, persistent task queues |
+
+Concretely:
+
+- **LangGraph** compiles your workflow into a graph and executes it node by node. agent-kernel can host that execution — deciding *when* each node's work runs, capping its LLM/tool concurrency, and detecting deadlocks between graph branches.
+- **Microsoft Agent Framework** (successor to AutoGen) coordinates multi-agent workflows and conversations. agent-kernel supplies the scheduler and resource governance those conversations consume, so one chatty agent cannot starve a CRITICAL one.
+- **AgentScope** builds message-passing multi-agent applications. agent-kernel sits underneath its message layer, adding priority scheduling, rate limiting, and deadlock detection.
+
+The frameworks answer *what the agents do and how the workflow flows*; agent-kernel answers *how many run at once, who preempts whom, and what happens when resources run out*. Because it is framework-agnostic, adoption is incremental: wrap any framework's execution step in `kernel.schedule(...)` and you get scheduling, limits, and observability without rewriting your graphs or workflows.
+
+---
+
 ## Comparison
 
 | Feature | agent-kernel | LangGraph | AutoGen | CrewAI |
@@ -219,7 +238,7 @@ examples/
 
 ## Flagship Example
 
-See [`examples/flagship/`](./examples/flagship/) — a complete **Agent OS** walkthrough wiring three layers of the stack together: agent-kernel schedules a researcher → writer → reviewer pipeline, [traceshield](https://github.com/cdzzy/traceshield) audits every task into a hash-chain-verified log (rendered as a Mermaid attribution graph), and [engram](https://github.com/cdzzy/engram) provides the shared long-term memory the agents collaborate through.
+See [`examples/flagship/`](./examples/flagship/) — a complete end-to-end walkthrough wiring three layers of the stack together: agent-kernel schedules a researcher → writer → reviewer pipeline, [traceshield](https://github.com/cdzzy/traceshield) audits every task into a hash-chain-verified log (rendered as a Mermaid attribution graph), and [engram](https://github.com/cdzzy/engram) provides the shared long-term memory the agents collaborate through.
 
 ```bash
 cd examples/flagship
