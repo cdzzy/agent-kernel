@@ -22,8 +22,6 @@
  *   const manifest = registry.exportManifest();
  */
 
-import { AgentId } from './types.js';
-
 // ---- A2A Types ----
 
 export interface A2AAgentCapability {

@@ -1,6 +1,6 @@
 {
   "name": "@cdzzy/agent-kernel",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Multi-Agent traffic control layer - resource scheduling, priority arbitration, deadlock detection, and concurrency primitives for AI agent systems",
   "type": "module",
   "main": "./dist/index.js",
@@ -44,13 +44,11 @@
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.0.0",
     "eslint": "^9.0.0",
+    "js-yaml": "^5.4.2",
     "rimraf": "^6.0.0",
     "typescript": "^5.7.0",
     "typescript-eslint": "^8.67.0",
     "vitepress": "^1.6.4",
-    "vitest": "^3.0.0"
-  },
-  "dependencies": {
-    "js-yaml": "^5.3.0"
+    "vitest": "^3.2.7"
   }
 }

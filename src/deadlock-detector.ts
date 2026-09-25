@@ -1,4 +1,4 @@
-import type { AgentId, ResourceId, DeadlockCycle, DeadlockConfig, DeadlockResolution, TypedEventEmitter } from './types.js';
+import type { AgentId, ResourceId, DeadlockCycle, DeadlockConfig, TypedEventEmitter } from './types.js';
 import type { ResourceManager } from './resource-manager.js';
 
 const DEFAULT_CONFIG: DeadlockConfig = {

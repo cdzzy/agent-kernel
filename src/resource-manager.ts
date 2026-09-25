@@ -3,11 +3,8 @@ import type {
   AgentId,
   ResourceId,
   ResourceConfig,
-  ResourceDescriptor,
   ResourceHandle,
-  WaitEntry,
   TypedEventEmitter,
-  PRIORITY_VALUES,
 } from './types.js';
 import { AgentMutex } from './concurrency/mutex.js';
 import { AgentSemaphore } from './concurrency/semaphore.js';
@@ -129,7 +126,7 @@ export class ResourceManager {
   }
 
   releaseAll(agentId: AgentId): void {
-    for (const [handleId, handle] of this.handles) {
+    for (const [, handle] of this.handles) {
       if (handle.agentId === agentId) {
         try { this.release(handle); } catch { /* ignore */ }
       }

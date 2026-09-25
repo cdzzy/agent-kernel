@@ -2,6 +2,13 @@
 
 All notable changes to AgentKernel are documented in this file.
 
+## [0.7.2] - 2026-09-25
+
+### Changed
+
+- `js-yaml` bumped 5.3.0 → 5.4.2 and vitest → 3.2.7 (patched transitive chain); `npm audit` now reports zero production vulnerabilities (remaining findings are dev-only vitest mock helper, accepted due to the Node 18/20/22 CI matrix).
+- 16 ESLint unused-symbol warnings eliminated across the scheduler, resource manager, priority arbiter, kernel, MCP registry and A2A registry — unused type imports removed, dead loop bindings dropped, the unused `agentId` parameter renamed `_agentId`, and `ignoreRestSiblings` enabled for the intentional omit-destructuring in `toolToDefinition`.
+
 ## [0.7.1] - 2026-09-20
 
 ### Changed

@@ -7,7 +7,6 @@ import type {
   SchedulerConfig,
   SchedulingStrategy,
   TypedEventEmitter,
-  PRIORITY_VALUES,
   AgentDescriptor,
 } from './types.js';
 import { PRIORITY_VALUES as PV } from './types.js';

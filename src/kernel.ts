@@ -11,7 +11,6 @@ import type {
   TaskSubmission,
   KernelConfig,
   KernelMetrics,
-  DeadlockCycle,
   AgentMessage,
   MessageHandler,
   MessagePayload,

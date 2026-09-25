@@ -1,4 +1,4 @@
-import type { AgentId, ResourceId, PriorityLevel, AgentDescriptor } from './types.js';
+import type { AgentId, AgentDescriptor } from './types.js';
 import { PRIORITY_VALUES } from './types.js';
 import type { ResourceManager } from './resource-manager.js';
 
@@ -124,7 +124,7 @@ export class PriorityArbiter {
     if (!this.resourceManager) return;
 
     // Reset all inheritances first
-    for (const [id, state] of this.agents) {
+    for (const [, state] of this.agents) {
       state.effectivePriority = state.basePriority;
       state.inheritedFrom = null;
     }

@@ -145,7 +145,7 @@ export class PriorityScheduler {
   /**
    * 从队列中取出下一个任务（优先级最高、等待时间最长）。
    */
-  private _dequeueNextTask(agentId: string): AgentTask | null {
+  private _dequeueNextTask(_agentId: string): AgentTask | null {
     // 按优先级从高到低扫描
     const priorities = [
       AgentPriority.CRITICAL,
