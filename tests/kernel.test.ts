@@ -47,6 +47,52 @@ describe('AgentKernel', () => {
     });
   });
 
+  describe('agent status lifecycle', () => {
+    it('should return to idle after the last task settles', async () => {
+      kernel = new AgentKernel({ scheduler: { strategy: 'fifo', maxConcurrent: 5 } });
+      kernel.register('worker');
+
+      expect(kernel.getAgentStatus('worker')).toBe('idle');
+
+      kernel.submit('worker', { name: 't1', handler: async () => 1 });
+      expect(kernel.getAgentStatus('worker')).toBe('running');
+
+      await sleep(30);
+      expect(kernel.getAgentStatus('worker')).toBe('idle');
+      expect(kernel.getMetrics().agents.idle).toBe(1);
+      expect(kernel.getMetrics().agents.running).toBe(0);
+    });
+
+    it('should stay running while another task is in flight', async () => {
+      kernel = new AgentKernel({ scheduler: { strategy: 'fifo', maxConcurrent: 5 } });
+      kernel.register('worker');
+
+      let releaseFirst: () => void = () => {};
+      const gate = new Promise<void>((r) => { releaseFirst = r; });
+      kernel.submit('worker', { name: 'slow', handler: async () => { await gate; return 'a'; } });
+      kernel.submit('worker', { name: 'fast', handler: async () => 'b' });
+
+      await sleep(20);
+      // fast settled; slow still running, so the agent must stay 'running'
+      expect(kernel.getAgentStatus('worker')).toBe('running');
+
+      releaseFirst();
+      await sleep(20);
+      expect(kernel.getAgentStatus('worker')).toBe('idle');
+    });
+
+    it('should return to idle when the last resource handle is released', async () => {
+      kernel = new AgentKernel({ resources: { 'db': { type: 'mutex' } } });
+      kernel.register('worker');
+
+      const handle = await kernel.acquire('worker', 'db');
+      expect(kernel.getAgentStatus('worker')).toBe('running');
+
+      kernel.release(handle);
+      expect(kernel.getAgentStatus('worker')).toBe('idle');
+    });
+  });
+
   describe('task execution', () => {
     it('should submit and execute tasks', async () => {
       kernel = new AgentKernel({

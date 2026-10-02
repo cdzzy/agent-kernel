@@ -129,6 +129,14 @@ export class Scheduler {
     return this.running.size;
   }
 
+  getRunningCountForAgent(agentId: AgentId): number {
+    let count = 0;
+    for (const task of this.running.values()) {
+      if (task.agentId === agentId) count++;
+    }
+    return count;
+  }
+
   getStats(): { queued: number; running: number; completed: number; failed: number } {
     let completed = 0, failed = 0;
     for (const t of this.completed.values()) {

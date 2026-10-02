@@ -63,6 +63,14 @@ export class AgentKernel extends TypedEventEmitter {
     this.deadlockDetector.setResolveCallback((agentId) => {
       this.scheduler.abortAgentTasks(agentId, 'Deadlock resolution');
     });
+
+    // Drive agent status from the scheduler: a starting task marks the agent
+    // running; when its last task settles and it holds no resources, the
+    // agent falls back to idle.
+    this.on('task:started', (task) => this.setAgentStatus(task.agentId, 'running'));
+    this.on('task:completed', (task) => this.scheduleIdleCheck(task.agentId));
+    this.on('task:failed', (task) => this.scheduleIdleCheck(task.agentId));
+    this.on('task:cancelled', (task) => this.scheduleIdleCheck(task.agentId));
   }
 
   // ---- Agent Lifecycle ----
@@ -160,12 +168,7 @@ export class AgentKernel extends TypedEventEmitter {
   release(handle: ResourceHandle): void {
     this.resources.release(handle);
     this.arbiter.resetInheritance(handle.agentId);
-
-    // If agent has no more running tasks, mark idle
-    const entry = this.agents.get(handle.agentId);
-    if (entry && entry.status === 'running') {
-      // Keep running status
-    }
+    this.maybeIdleAgent(handle.agentId);
   }
 
   async withResource<T>(
@@ -293,6 +296,24 @@ export class AgentKernel extends TypedEventEmitter {
     if (old === status) return;
     entry.status = status;
     this.emit('agent:status-changed', agentId, old, status);
+  }
+
+  /**
+   * Defer the idle check to the next microtask: the scheduler emits settle
+   * events before it removes the task from its running set, so an immediate
+   * check would still count the task that just finished.
+   */
+  private scheduleIdleCheck(agentId: AgentId): void {
+    queueMicrotask(() => this.maybeIdleAgent(agentId));
+  }
+
+  /** Transition a running agent to idle once it has no running tasks and no held resources. */
+  private maybeIdleAgent(agentId: AgentId): void {
+    const entry = this.agents.get(agentId);
+    if (!entry || entry.status !== 'running') return;
+    if (this.scheduler.getRunningCountForAgent(agentId) > 0) return;
+    if (this.resources.hasHandles(agentId)) return;
+    this.setAgentStatus(agentId, 'idle');
   }
 }
 

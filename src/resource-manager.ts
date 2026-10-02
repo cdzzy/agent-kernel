@@ -207,6 +207,14 @@ export class ResourceManager {
     return this.resources.has(resourceId);
   }
 
+  /** True when the agent currently holds at least one resource handle. */
+  hasHandles(agentId: AgentId): boolean {
+    for (const handle of this.handles.values()) {
+      if (handle.agentId === agentId) return true;
+    }
+    return false;
+  }
+
   cancelAllWaiters(resourceId: ResourceId, reason?: string): void {
     const resource = this.resources.get(resourceId);
     if (!resource) return;

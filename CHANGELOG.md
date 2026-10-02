@@ -2,6 +2,30 @@
 
 All notable changes to AgentKernel are documented in this file.
 
+## [Unreleased]
+
+### Fixed
+
+- **Agent status lifecycle** (`kernel.ts`, `scheduler.ts`, `resource-manager.ts`):
+  agents previously stayed `running` forever once they received work — the
+  `release()` path carried an empty block with a comment promising an idle
+  transition that was never implemented, so `getMetrics().agents` always showed
+  inflated `running` counts. Now the kernel drives status from the scheduler:
+  a starting task marks the agent `running`, and when its last task settles
+  (completed/failed/cancelled) *and* it holds no resource handles, the agent
+  falls back to `idle`. The check is deferred one microtask because the
+  scheduler emits settle events before it removes the task from its running
+  set. New `Scheduler.getRunningCountForAgent()` and
+  `ResourceManager.hasHandles()` back the transition. 3 new tests cover
+  settle-to-idle, staying running while a sibling task is in flight, and
+  release-to-idle.
+- **Dependency security**: transitive `brace-expansion` (ESLint dev tree)
+  bumped past 1.1.20, clearing the high-severity GHSA-q2hr-2g5m-vwhr /
+  GHSA-qhr7-859c-m2p7 / GHSA-6j4f-fj2g-mc7p advisories. Remaining audit
+  findings are accepted dev-only: the vitest mock helper (moderate, known) and
+  the esbuild dev-server advisory via vitepress (moderate, no non-breaking fix
+  while vitepress 1.6.x pins vite 5).
+
 ## [0.8.0] - 2026-10-02
 
 ### Added
