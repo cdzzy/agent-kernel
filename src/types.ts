@@ -196,23 +196,31 @@ export interface KernelEvents {
   'budget-exceeded': (agentId: AgentId, resource: string, usage: number) => void;
 }
 
-export class TypedEventEmitter extends EventEmitter {
-  override emit<K extends keyof KernelEvents>(event: K, ...args: Parameters<KernelEvents[K]>): boolean;
+/**
+ * Typed event emitter base. The `Events` map associates event names with
+ * listener signatures, so `emit`/`on`/`off`/`once` are fully typed.
+ * Defaults to `KernelEvents`; subsystems with their own event surfaces
+ * (e.g. `HandoffCoordinator`) pass their own map.
+ */
+export class TypedEventEmitter<
+  Events extends { [K in keyof Events]: (...args: any[]) => void } = KernelEvents,
+> extends EventEmitter {
+  override emit<K extends keyof Events & string>(event: K, ...args: Parameters<Events[K]>): boolean;
   override emit(event: string, ...args: unknown[]): boolean {
     return super.emit(event, ...args);
   }
 
-  override on<K extends keyof KernelEvents>(event: K, listener: KernelEvents[K]): this;
+  override on<K extends keyof Events & string>(event: K, listener: Events[K]): this;
   override on(event: string, listener: (...args: unknown[]) => void): this {
     return super.on(event, listener);
   }
 
-  override off<K extends keyof KernelEvents>(event: K, listener: KernelEvents[K]): this;
+  override off<K extends keyof Events & string>(event: K, listener: Events[K]): this;
   override off(event: string, listener: (...args: unknown[]) => void): this {
     return super.off(event, listener);
   }
 
-  override once<K extends keyof KernelEvents>(event: K, listener: KernelEvents[K]): this;
+  override once<K extends keyof Events & string>(event: K, listener: Events[K]): this;
   override once(event: string, listener: (...args: unknown[]) => void): this {
     return super.once(event, listener);
   }

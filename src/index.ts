@@ -28,6 +28,14 @@ export type {
   StepId,
 } from './workflow.js';
 
+// Handoff orchestration (runtime transfer/delegate between agents)
+export { HandoffCoordinator, HandoffSignal, HandoffExecutionError } from './handoff.js';
+export type {
+  HandoffMode, HandoffStatus, HandoffRecord, HandoffContext,
+  HandoffHandler, HandoffSignalOptions, HandoffExecuteOptions,
+  HandoffConfig, HandoffResult, HandoffStats, HandoffEvents,
+} from './handoff.js';
+
 // Health monitoring (Issue #2 / #10)
 export { HealthMonitor } from './health-check.js';
 export type { HealthStatus, HealthCheckConfig, AgentHealth, HealthCheckFn } from './health-check.js';

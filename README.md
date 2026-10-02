@@ -44,6 +44,7 @@ Running multiple AI agents concurrently is hard. Without coordination:
 - 🗂️ **Task decomposition** — hierarchical task breakdown with Mermaid/DOT graphs (v0.2.0)
 - 🔌 **A2A registry** — Agent Card service discovery (v0.2.0)
 - 🛠️ **MCP tool registry** — centralized tool management with access control (v0.2.0)
+- 🤝 **Handoff orchestration** — runtime agent-to-agent handoffs, `transfer` (goto) and `delegate` (call/return), capability routing, chain audit trail (v0.8.0)
 
 ---
 
@@ -220,6 +221,7 @@ The frameworks answer *what the agents do and how the workflow flows*; agent-ker
 - [x] **Kernel inspection CLI** (`agent-kernel status`, `agent-kernel agents`, `agent-kernel top`) ✅ (v0.3.0)
 - [x] **Work-stealing scheduler** (`WorkStealingPool` — idle workers steal from the busiest queue, rebalanced through the kernel) ✅ (v0.4.0)
 - [x] **Persistent task queue** (`PersistentTaskQueue` — write-ahead journal, at-least-once recovery, dependency remapping) ✅ (v0.6.0)
+- [x] **Handoff orchestration** (`HandoffCoordinator` — `transfer`/`delegate` modes, capability routing, cycle & depth guardrails, chain audit) ✅ (v0.8.0)
 
 ---
 

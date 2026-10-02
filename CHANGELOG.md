@@ -2,6 +2,13 @@
 
 All notable changes to AgentKernel are documented in this file.
 
+## [0.8.0] - 2026-10-02
+
+### Added
+
+- **Handoff orchestration** (runtime agent-to-agent handoff, the pattern popularized by OpenAI Swarm and Anthropic's multi-agent systems): `HandoffCoordinator` lets an agent's handler yield control mid-execution by raising a `HandoffSignal`. Two modes — `transfer` (control moves to the target like a `goto`; the sender exits the chain) and `delegate` (function-call semantics: the delegate's return value is fed back into the sender as its new payload, and nested delegates unwind as a stack). Targets resolve by exact agent id first, then by capability name routed to the least-busy advertising agent (candidates unknown to the kernel are skipped). Every hop is journaled into an auditable `chain` and executed through `kernel.submit()`, so priorities, resources, metrics, and the TraceShield bridge all observe handoff traffic. Guardrails: transfer cycles fail fast (delegate revisits are legal), `maxChainDepth` caps runaway chains (default 10, checked before journaling), and `timeoutMs` budgets the whole chain. Failures throw `HandoffExecutionError` carrying the full result (status, chain, error); `handoff`/`completed`/`failed` events and `getStats()` expose chain telemetry.
+- `TypedEventEmitter` is now generic over its event map (`TypedEventEmitter<Events>`, defaulting to `KernelEvents` — fully backward compatible), so subsystems with their own event surfaces such as `HandoffCoordinator` get properly typed `emit`/`on`/`off`/`once` instead of overloading the kernel's event names.
+
 ## [0.7.2] - 2026-09-25
 
 ### Changed
