@@ -2,6 +2,43 @@
 
 All notable changes to AgentKernel are documented in this file.
 
+## [0.10.0] - 2026-10-10
+
+### Changed
+
+- **Upgraded vitest 3.2.7 → 5.0.3, resolving the deferred `@vitest/mocker`
+  advisory**
+  ([GHSA-82fw-gwwq-j7x9](https://github.com/advisories/GHSA-82fw-gwwq-j7x9),
+  moderate): dev-server redirect-mock registration lacked `server.fs` allowlist
+  validation. Fixed upstream in vitest 5.0.0; vitest 3.x is unmaintained and
+  will not receive a backport. This closes out the vitest half of the deferral
+  documented in 0.9.0.
+- **Minimum supported Node is now 22.12** (`engines`), the floor required by
+  vitest 5 (`^22.12.0 || ^24.0.0 || >=26.0.0`). The CI matrix now runs on
+  Node 22 / 24 / 26 (Node 20 dropped — vitest 5 no longer installs on it).
+- **Added `vite@^8.3.4` as an explicit devDependency**: vitest 5 declares
+  Vite as a required peer (`^6.4.0 || ^7.0.0 || ^8.0.0`). It coexists with
+  `vitepress` 1.6.x, which keeps its own nested vite 5 for the docs site.
+- **Removed the `overrides` block** (tinypool `2.1.2`, source-map-js `1.2.2`):
+  vitest 5 ships a fully patched dependency chain, so the 0.9.0-era pins are
+  obsolete.
+
+### Security
+
+- The remaining audit findings are confined to the docs-only vitepress chain
+  (vitepress 1.6.4 → vite 5.4 → esbuild `<=0.24.2`,
+  [GHSA-67mh-4wv8-2f99](https://github.com/advisories/GHSA-67mh-4wv8-2f99)):
+  2 moderate + 1 high, exposed only by a local `docs:dev` server, never in
+  CI (docs builds statically). No fix exists on vitepress 1.x; the fix path
+  is the vitepress 2.0 line, still in alpha (2.0.0-alpha.20) and not suitable
+  for a stable release train. Accepted and documented, as in 0.9.0.
+
+### Verified
+
+- All 139 tests pass on vitest 5.0.3 (the suite uses no `vi.mock`/`vi.hoisted`
+  nesting, empty-`toThrow` assertions, or benchmark APIs — the v5 breaking
+  changes do not apply). Lint, typecheck, and build are green.
+
 ## [0.9.0] - 2026-10-09
 
 ### Changed
