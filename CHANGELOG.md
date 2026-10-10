@@ -19,6 +19,12 @@ All notable changes to AgentKernel are documented in this file.
 - **Added `vite@^8.3.4` as an explicit devDependency**: vitest 5 declares
   Vite as a required peer (`^6.4.0 || ^7.0.0 || ^8.0.0`). It coexists with
   `vitepress` 1.6.x, which keeps its own nested vite 5 for the docs site.
+- **Pinned `esbuild@^0.28.2` at the root**: vite 8 declares an optional peer
+  on esbuild `^0.27.0 || ^0.28.0`. Without an explicit root dependency the
+  resolver hoisted vitepress's esbuild 0.21.5 to the root, leaving vite 8's
+  peer unsatisfied — `npm ci` on Node 22 (npm 10 strict validation) rejected
+  the lockfile. The pin keeps 0.28.x at the root while vitepress's 0.21.5
+  nests under its own vite 5 subtree, satisfying both.
 - **Removed the `overrides` block** (tinypool `2.1.2`, source-map-js `1.2.2`):
   vitest 5 ships a fully patched dependency chain, so the 0.9.0-era pins are
   obsolete.
