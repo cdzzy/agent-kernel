@@ -18,26 +18,36 @@ All notable changes to AgentKernel are documented in this file.
   Node 22 / 24 / 26 (Node 20 dropped — vitest 5 no longer installs on it).
 - **Added `vite@^8.3.4` as an explicit devDependency**: vitest 5 declares
   Vite as a required peer (`^6.4.0 || ^7.0.0 || ^8.0.0`). It coexists with
-  `vitepress` 1.6.x, which keeps its own nested vite 5 for the docs site.
+  `vitepress` 1.6.x, which keeps its own nested vite for the docs site
+  (scoped to a patched 6.4.x — see Security).
 - **Pinned `esbuild@^0.28.2` at the root**: vite 8 declares an optional peer
   on esbuild `^0.27.0 || ^0.28.0`. Without an explicit root dependency the
   resolver hoisted vitepress's esbuild 0.21.5 to the root, leaving vite 8's
   peer unsatisfied — `npm ci` on Node 22 (npm 10 strict validation) rejected
-  the lockfile. The pin keeps 0.28.x at the root while vitepress's 0.21.5
-  nests under its own vite 5 subtree, satisfying both.
-- **Removed the `overrides` block** (tinypool `2.1.2`, source-map-js `1.2.2`):
-  vitest 5 ships a fully patched dependency chain, so the 0.9.0-era pins are
-  obsolete.
+  the lockfile. The pin keeps 0.28.x at the root for vite 8, while the
+  vitepress subtree carries its own patched esbuild (see Security).
+- **Replaced the 0.9.0 `overrides`** (tinypool `2.1.2`, source-map-js
+  `1.2.2` — obsolete now that vitest 5 ships a fully patched chain) with a
+  scoped vitepress-only override; see Security.
 
 ### Security
 
-- The remaining audit findings are confined to the docs-only vitepress chain
-  (vitepress 1.6.4 → vite 5.4 → esbuild `<=0.24.2`,
-  [GHSA-67mh-4wv8-2f99](https://github.com/advisories/GHSA-67mh-4wv8-2f99)):
-  2 moderate + 1 high, exposed only by a local `docs:dev` server, never in
-  CI (docs builds statically). No fix exists on vitepress 1.x; the fix path
-  is the vitepress 2.0 line, still in alpha (2.0.0-alpha.20) and not suitable
-  for a stable release train. Accepted and documented, as in 0.9.0.
+- **Cleared the three vitepress-chain advisories deferred since 0.9.0** via a
+  scoped `overrides` entry that applies only inside the vitepress subtree:
+  `vite@^6.4.3` (resolves to 6.4.4) and `esbuild@^0.25.0` (resolves to
+  0.25.12). This closes the esbuild dev-server advisory
+  ([GHSA-67mh-4wv8-2f99](https://github.com/advisories/GHSA-67mh-4wv8-2f99),
+  moderate) plus the vite dev-server advisories grouped under `vite <=6.4.2`
+  ([GHSA-4w7w-66w2-5vf9](https://github.com/advisories/GHSA-4w7w-66w2-5vf9),
+  [GHSA-fx2h-pf6j-xcff](https://github.com/advisories/GHSA-fx2h-pf6j-xcff),
+  [GHSA-v6wh-96g9-6wx3](https://github.com/advisories/GHSA-v6wh-96g9-6wx3),
+  high) and the transitive vitepress marker. `npm audit` now reports
+  **0 vulnerabilities**. vitepress 1.6.4 does not declare vite 6, but its
+  resolved `@vitejs/plugin-vue` 5.2.4 does (`vite ^5.0.0 || ^6.0.0` peer),
+  and `vitepress build docs` builds the site cleanly on vite 6.4.4; all 139
+  tests, lint, typecheck, `npm ci`, and the static docs build stay green.
+  The root tree (vite 8.3.4 + esbuild 0.28.2 for vitest 5) is unaffected.
+  When vitepress 2.0 goes stable, replace the override with a plain upgrade.
 
 ### Verified
 
