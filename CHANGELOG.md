@@ -2,6 +2,22 @@
 
 All notable changes to AgentKernel are documented in this file.
 
+## [0.10.1] - 2026-10-23
+
+### Changed
+
+- **Dropped redundant `as TaskDescriptor` assertions in `Scheduler.submit`**
+  (`src/scheduler.ts`): `TaskDescriptor<T>` is already assignable to the
+  non-generic `TaskDescriptor` (i.e. `TaskDescriptor<unknown>`), so the two
+  casts on `queue.push` / `task:submitted` emission were removed — the
+  queue and event payload are now tracked as plain `TaskDescriptor` without
+  an assertion.
+- **CI alignment with the other @cdzzy Node packages**
+  (`.github/workflows/ci.yml`): the build now uploads `dist/` as a workflow
+  artifact (matching engram / traceshield), push/PR runs cancel stale
+  in-progress runs for the same ref (`concurrency`), and the workflow only
+  requests `contents: read`.
+
 ## [0.10.0] - 2026-10-10
 
 ### Changed

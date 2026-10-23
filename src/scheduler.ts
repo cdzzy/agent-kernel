@@ -1,4 +1,4 @@
-﻿import { randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import type {
   AgentId,
   TaskId,
@@ -95,10 +95,10 @@ export class Scheduler {
       dependencies: submission.dependencies ?? [],
     };
 
-    this.queue.push(task as TaskDescriptor);
+    this.queue.push(task);
     task.status = 'queued';
 
-    this.emitter?.emit('task:submitted', task as TaskDescriptor);
+    this.emitter?.emit('task:submitted', task);
     this.scheduleProcessing();
 
     return task;
