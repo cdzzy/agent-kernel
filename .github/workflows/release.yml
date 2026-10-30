@@ -14,9 +14,19 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '22.x'
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Verify tag matches package.json version
+        run: |
+          PKG_VERSION="v$(node --input-type=module -e "import { readFile } from 'node:fs/promises'; const p = JSON.parse(await readFile('./package.json', 'utf8')); process.stdout.write(p.version)")"
+          TAG_VERSION="${GITHUB_REF_NAME}"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::Tag ${TAG_VERSION} does not match package.json version ${PKG_VERSION}."
+            exit 1
+          fi
+          echo "Tag ${TAG_VERSION} matches package.json version."
 
       - name: Check NPM_TOKEN secret
         id: token-guard

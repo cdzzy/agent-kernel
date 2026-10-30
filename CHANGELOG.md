@@ -2,6 +2,25 @@
 
 All notable changes to AgentKernel are documented in this file.
 
+## [0.10.2] - 2026-10-30
+
+### Security
+
+- **Closed the last open `npm audit` advisory** via the scoped vitepress
+  override (`package.json` `overrides.vitepress.vite`): `vite@^6.4.3` resolved
+  to 6.4.4, which is vulnerable to the dev-server `server.fs.deny` bypass
+  ([GHSA-8g5g-mxqh-grgj](https://github.com/advisories/GHSA-8g5g-mxqh-grgj),
+  moderate). The override now resolves to vite 6.4.5, and `npm audit` reports
+  **0 vulnerabilities** across the tree (including the vitepress docs chain).
+
+### Fixed
+
+- **Release workflow ran on Node 20** (`.github/workflows/release.yml`):
+  `engines` requires Node ≥ 22.12, but the tag-push publish workflow pinned
+  `setup-node` to 20.x. It now runs on Node 22 and validates the release tag
+  against `package.json` (ESM-safe `readFile`) before publishing, matching the
+  engram / traceshield release guards.
+
 ## [0.10.1] - 2026-10-23
 
 ### Changed

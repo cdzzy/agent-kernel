@@ -1,6 +1,6 @@
 {
   "name": "@cdzzy/agent-kernel",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "Multi-Agent traffic control layer - resource scheduling, priority arbitration, deadlock detection, and concurrency primitives for AI agent systems",
   "type": "module",
   "main": "./dist/index.js",
@@ -56,7 +56,7 @@
   "overrides": {
     "vitepress": {
       "esbuild": "^0.25.0",
-      "vite": "^6.4.3"
+      "vite": "^6.4.5"
     }
   }
 }
