@@ -64,6 +64,11 @@ export type { ModelTier, ModelRoute, ModelRouterConfig } from './model-router.js
 export { Observability } from './observability.js';
 export type { ObservabilityMetrics, AlertRule, Counter } from './observability.js';
 
+// OpenTelemetry tracing (Roadmap)
+export { KernelTracer, createTracer, installAsyncLocalStorage, KERNEL_TRACER_NAME, TRACING_ATTRIBUTE_PREFIX, SpanStatusCode, ROOT_CONTEXT } from './tracing.js';
+export type { KernelTracingConfig } from './tracing.js';
+export { W3CTraceContextPropagator, installW3CTraceContextPropagator, parseTraceparent, TRACEPARENT_HEADER } from './w3c-trace-context.js';
+
 // Task decomposition (Issue #9)
 export { TaskDecomposer } from './decomposition.js';
 export type { SubTask, DecompositionResult, DecompositionConfig } from './decomposition.js';

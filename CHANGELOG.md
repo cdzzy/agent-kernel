@@ -2,6 +2,73 @@
 
 All notable changes to AgentKernel are documented in this file.
 
+## [0.11.0] - 2026-11-01
+
+### Added
+
+- **OpenTelemetry tracing integration** (`src/tracing.ts`): the long-standing
+  roadmap item is now implemented. AgentKernel emits standard OTEL spans, so
+  agent and task work shows up in Jaeger / Tempo / Datadog / Grafana / any
+  OTLP backend with no vendor lock-in.
+  - `KernelTracer` — high-level bridge over `@opentelemetry/api`:
+    `runInSpan` / `runTaskInSpan` wrap sync or async work in a span that is
+    always ended, marked `OK` on resolve or `ERROR` with the exception
+    recorded on reject (the error is re-thrown, so control flow is unchanged);
+    `startSpan` / `startAgentSpan` / `startTaskSpan` for manual spans named
+    `agent.<action>` / `task.<operation>` and tagged with `agent.id` /
+    `task.id`; `recordException` / `setOk`; `getTracer()` for advanced use.
+  - `createTracer(config)` factory plus `KernelTracingConfig`
+    (`serviceName`, `defaultAttributes`).
+  - **Async-safe parent/child linkage**: `installAsyncLocalStorage()` idempotently
+    registers `AsyncLocalStorageContextManager`, so spans started inside a
+    wrapped function nest under it across `await` boundaries instead of
+    starting a new trace. Without it, `@opentelemetry/api` ships a no-op
+    context manager and linkage is silently lost.
+  - **W3C Trace Context propagation** (`src/w3c-trace-context.ts`):
+    `W3CTraceContextPropagator` implements the `traceparent` header
+    (`00-{trace-id}-{span-id}-{flags}`) as a spec-compliant, zero-dependency
+    implementation — the heavier `@opentelemetry/core` package is not
+    required. Exposed via `KernelTracer.inject` / `extract` /
+    `runInSpanAsChild`, with `installW3CTraceContextPropagator()` and
+    `parseTraceparent()` / `TRACEPARENT_HEADER` exported for direct use.
+  - Both installers run idempotently and only when the first `KernelTracer`
+    is constructed, so importing `agent-kernel` has no global side effects
+    and hosts already running the OpenTelemetry NodeSDK are unaffected.
+- **`examples/08_otel_tracing.ts`** — runnable end-to-end demo using
+  `ConsoleSpanExporter` (task span with attributes, an ERROR agent span,
+  and a propagated `traceparent`), no extra exporter package needed.
+
+### Changed
+
+- **New runtime dependencies**: `@opentelemetry/api` (`~1.9.0`, pinned below
+  1.10 because the SDK declares a `<1.10.0` peer range) and
+  `@opentelemetry/context-async-hooks` (`^1.30.0`) for the AsyncLocalStorage
+  context manager. Tracing remains fully opt-in at runtime: with no
+  `TracerProvider` registered every span call is a no-op, so existing users
+  see no behavior change and pay no per-span overhead.
+- **`@opentelemetry/sdk-trace` added as a dev dependency** so the test suite
+  asserts against real spans via `InMemorySpanExporter`, not mocks.
+
+### Testing
+
+- 28 new tests — `tests/tracing.test.ts` (17: no-op safety, span names and
+  attributes, default attributes, OK/ERROR lifecycle, exception recording,
+  nested parent linkage, active-span resolution, W3C inject/extract round
+  trip) and `tests/w3c-trace-context.test.ts` (11: `traceparent` parsing
+  edge cases — malformed, unsupported version, all-zero and non-hex ids,
+  invalid flags, whitespace). Full suite: **167 tests passing**, `tsc --noEmit`
+  clean, `eslint src` clean.
+
+### Security
+
+- `npm audit --omit=dev` reports **0 vulnerabilities**; `@opentelemetry/api`
+  and `@opentelemetry/context-async-hooks` are clean. The 13 moderate
+  advisories now reported across the full tree are dev-only (the
+  `rimraf → glob` and `eslint → minimatch` chains) and come from newly
+  published registry advisories, not from this change; `npm audit fix --force`
+  would downgrade rimraf to 4.1.4 and eslint to 4.0.0, so they are left for
+  an upstream fix.
+
 ## [0.10.2] - 2026-10-30
 
 ### Security

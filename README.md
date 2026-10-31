@@ -41,6 +41,7 @@ Running multiple AI agents concurrently is hard. Without coordination:
 - 🐝 **Swarm mode** — decentralized capability-aware routing (v0.2.0)
 - 🧠 **Model router** — complexity-aware routing to fast/standard/reasoning models (v0.2.0)
 - 📊 **Observability** — Prometheus-style metrics + alerting (v0.2.0)
+- 🔭 **OpenTelemetry tracing** — agent/task spans, W3C Trace Context propagation, async-safe parent/child linkage (v0.11.0)
 - 🗂️ **Task decomposition** — hierarchical task breakdown with Mermaid/DOT graphs (v0.2.0)
 - 🔌 **A2A registry** — Agent Card service discovery (v0.2.0)
 - 🛠️ **MCP tool registry** — centralized tool management with access control (v0.2.0)
@@ -173,6 +174,64 @@ const scheduler = new Scheduler({
 
 ---
 
+## OpenTelemetry Tracing
+
+AgentKernel emits standard OpenTelemetry spans, so agent and task work shows
+up in whatever backend you already run (Jaeger, Tempo, Datadog, Grafana,
+Honeycomb, …). The integration is built on the stable `@opentelemetry/api`
+plus one helper package for async context; there is no vendor SDK lock-in.
+
+```typescript
+import { trace } from '@opentelemetry/api';
+import { TracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { KernelTracer } from 'agent-kernel';
+
+// 1. Register a provider — any exporter works.
+trace.setGlobalTracerProvider(
+  new TracerProvider({
+    spanProcessors: [new SimpleSpanProcessor({ exporter: new OTLPTraceExporter() })],
+  }),
+);
+
+// 2. Wrap task execution in a span.
+const tracer = new KernelTracer({ serviceName: 'my-agent-fleet' });
+
+await tracer.runTaskInSpan('task-42', 'execute', async (span) => {
+  span.setAttribute('task.priority', 'high');
+  return await scheduler.submit(task);
+});
+```
+
+**What you get**
+
+- `runInSpan` / `runTaskInSpan` — a span around any sync or async unit of work,
+  ended automatically and marked `OK` or `ERROR`, with the exception recorded.
+  The exception is re-thrown, so your control flow is unchanged.
+- `startAgentSpan(agentId, action)` / `startTaskSpan(taskId, operation)` —
+  manual spans named `agent.<action>` / `task.<operation>` and tagged with
+  `agent.id` / `task.id`. Use `tracer.getTracer()` for anything more exotic.
+- **Parent/child linkage across `await`** — `runInSpan` activates the span via
+  an AsyncLocalStorage context manager, so spans started inside the wrapped
+  function nest under it instead of starting a new trace.
+- **W3C Trace Context propagation** — `inject(carrier)` writes a standards
+  `traceparent` header, `extract(carrier)` reads one back and
+  `runInSpanAsChild(parent, …)` continues the remote trace. This is a
+  zero-dependency implementation of the spec (no `@opentelemetry/core` needed).
+- **Safe with no provider** — every call degrades to a no-op until a
+  `TracerProvider` is registered, so tracing is opt-in and adds no runtime
+  requirement.
+- **No global side effects on import** — the AsyncLocalStorage context manager
+  and W3C propagator are installed idempotently, and only when you first
+  construct a `KernelTracer`. Hosts already running the OpenTelemetry NodeSDK
+  are unaffected.
+
+Attribute names follow an `agent.*` / `task.*` convention so dashboards can
+query consistently: `agent.id`, `agent.action`, `task.id`, `task.operation`,
+plus any attributes you pass through.
+
+---
+
 ## Relationship to LangGraph / Microsoft Agent Framework / AgentScope
 
 agent-kernel is **not** another orchestration framework — it is the runtime layer those frameworks run on top of.
@@ -217,7 +276,7 @@ The frameworks answer *what the agents do and how the workflow flows*; agent-ker
 - [x] Docker Compose deployment ✅ (docker-compose.yml, v0.2.0)
 - [x] **TraceShield audit bridge** (`attachTraceShield` — every task, deadlock, budget, and health event lands in the tamper-evident audit trail) ✅ (v0.5.0)
 - [x] **Distributed mode** (`KernelHttpEndpoint` + `RemoteKernelClient` — expose a kernel over HTTP, execute tasks on remote machines with named handlers) ✅ (v0.7.0)
-- [ ] OpenTelemetry tracing integration
+- [x] **OpenTelemetry tracing** (`KernelTracer` — agent/task spans, `runTaskInSpan`, W3C `traceparent` propagation, AsyncLocalStorage context manager) ✅ (v0.11.0)
 - [x] **Kernel inspection CLI** (`agent-kernel status`, `agent-kernel agents`, `agent-kernel top`) ✅ (v0.3.0)
 - [x] **Work-stealing scheduler** (`WorkStealingPool` — idle workers steal from the busiest queue, rebalanced through the kernel) ✅ (v0.4.0)
 - [x] **Persistent task queue** (`PersistentTaskQueue` — write-ahead journal, at-least-once recovery, dependency remapping) ✅ (v0.6.0)

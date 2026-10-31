@@ -1,6 +1,6 @@
 {
   "name": "@cdzzy/agent-kernel",
-  "version": "0.10.2",
+  "version": "0.11.0",
   "description": "Multi-Agent traffic control layer - resource scheduling, priority arbitration, deadlock detection, and concurrency primitives for AI agent systems",
   "type": "module",
   "main": "./dist/index.js",
@@ -39,10 +39,15 @@
   "engines": {
     "node": ">=22.12.0"
   },
+  "dependencies": {
+    "@opentelemetry/api": "~1.9.0",
+    "@opentelemetry/context-async-hooks": "^1.30.0"
+  },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.0.0",
+    "@opentelemetry/sdk-trace": "^2.12.0",
     "esbuild": "^0.28.2",
     "eslint": "^9.0.0",
     "js-yaml": "^5.4.2",
