@@ -185,6 +185,56 @@ agent-kernel **不是**又一个编排框架 —— 它是这些编排框架之�
 
 ---
 
+## 与 Temporal（持久化执行）的关系
+
+Temporal 是**持久化执行（durable execution）**的事实基座：它持久化工作流
+状态、跨进程崩溃存活、恢复定时器/信号/活动，并提供确定性重放。
+agent-kernel 刻意**不**在这里竞争：它不做工作流检查点、不重放历史、也不承诺
+跨重启的 exactly-once 恢复。重造这套能力是多年工程，而且没有必要 ——
+Temporal 已经做好了，并在 2026 年原生集成了 Google ADK、OpenAI Agents SDK、
+AWS Strands、LangGraph、LangSmith、Vercel AI SDK 与 Gemini SDK。
+
+分工边界：
+
+| 关注点 | Temporal | agent-kernel |
+|---|---|---|
+| 持久化工作流状态、崩溃恢复、确定性重放 | ✅ 负责 | ❌ 不在范围内 |
+| 定时器、信号、长时间人工等待 | ✅ | ❌ |
+| 智能体之间的优先级 / 抢占式调度 | ⚠️ 仅队列路由 | ✅ |
+| Token、成本、并发预算与单智能体资源限额 | ❌ | ✅ |
+| 死锁检测与解除 | ❌ | ✅ |
+| 编排框架之下的框架无关运行时 | ✅（工作流 SDK） | ✅（智能体执行） |
+
+`PersistentTaskQueue` 是至少一次（at-least-once）的任务日志 —— 它保证排队任务
+不丢失，但不是工作流检查点，也不重放工作流的状态历史。
+
+**二者可组合。** 用 Temporal 负责持久性，把每个 activity 里的智能体工作交给
+内核调度，从而获得优先级、预算与死锁检查：
+
+```typescript
+import { proxyActivities } from '@temporalio/workflow';
+import type * as activities from './activities';
+
+const { runAgentStep } = proxyActivities<typeof activities>({
+  startToCloseTimeout: '10 minutes',
+});
+
+export async function supportWorkflow(ticket: Ticket): Promise<string> {
+  // 持久性归 Temporal：该 activity 能跨 worker 崩溃并重放。
+  // 在其内部，agent-kernel 决定谁运行、用多少资源：
+  //   return kernel.schedule(agent, task, {
+  //     priority: 'HIGH',
+  //     budget: { tokens: 50_000 },
+  //   });
+  return runAgentStep(ticket);
+}
+```
+
+判断准则：需求是"崩溃后从断点精确恢复"，选 Temporal；需求是"下一个谁跑、
+能花多少、集群是否死锁"，选 agent-kernel。两者同时部署才是预期形态。
+
+---
+
 ## 对比同类方案
 
 | 功能 | agent-kernel | LangGraph | AutoGen | CrewAI |

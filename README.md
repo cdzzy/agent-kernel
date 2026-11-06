@@ -251,6 +251,61 @@ The frameworks answer *what the agents do and how the workflow flows*; agent-ker
 
 ---
 
+## Relationship to Temporal (Durable Execution)
+
+Temporal is the de facto substrate for **durable execution**: it persists
+workflow state, survives worker crashes, resumes timers/signals/activities, and
+provides deterministic replay. agent-kernel deliberately does not compete
+there. It does not checkpoint workflows, replay history, or promise
+exactly-once recovery across restarts — that is a multi-year effort and
+unnecessary, because Temporal already does it and ships first-class
+integrations with Google ADK, the OpenAI Agents SDK, AWS Strands, LangGraph,
+LangSmith, the Vercel AI SDK, and the Gemini SDK.
+
+The boundary:
+
+| Concern | Temporal | agent-kernel |
+|---|---|---|
+| Durable workflow state, crash recovery, deterministic replay | ✅ owner | ❌ out of scope |
+| Timers, signals, long-running human waits | ✅ | ❌ |
+| Priority / preemptive scheduling among agents | ⚠️ queue routing only | ✅ |
+| Token, cost, and concurrency budgets; per-agent resource limits | ❌ | ✅ |
+| Deadlock detection and resolution | ❌ | ✅ |
+| Framework-agnostic runtime underneath orchestrators | ✅ (workflow SDKs) | ✅ (agent execution) |
+
+`PersistentTaskQueue` is an at-least-once task journal — it keeps queued work
+from disappearing. It is not a workflow checkpoint and does not replay a
+workflow's state history.
+
+**They compose.** Use Temporal for durability and route each activity's agent
+work through the kernel so it gets a priority, a budget, and a deadlock check:
+
+```typescript
+import { proxyActivities } from '@temporalio/workflow';
+import type * as activities from './activities';
+
+const { runAgentStep } = proxyActivities<typeof activities>({
+  startToCloseTimeout: '10 minutes',
+});
+
+export async function supportWorkflow(ticket: Ticket): Promise<string> {
+  // Temporal owns durability: this activity survives worker crashes and replays.
+  // Inside it, agent-kernel decides who runs and with what resources:
+  //   return kernel.schedule(agent, task, {
+  //     priority: 'HIGH',
+  //     budget: { tokens: 50_000 },
+  //   });
+  return runAgentStep(ticket);
+}
+```
+
+Rule of thumb: if the requirement is "resume exactly where it left off after a
+crash", reach for Temporal. If it is "which agent runs next, how much may it
+spend, and is the fleet deadlocked", reach for agent-kernel. Running both is
+the intended production deployment.
+
+---
+
 ## Comparison
 
 | Feature | agent-kernel | LangGraph | AutoGen | CrewAI |

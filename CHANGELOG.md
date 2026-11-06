@@ -2,6 +2,25 @@
 
 All notable changes to AgentKernel are documented in this file.
 
+## [0.11.1] - 2026-11-06
+
+### Changed
+
+- **README positioning vs Temporal (durable execution)**, in both languages.
+  Temporal is the de facto substrate for durable workflow state, crash
+  recovery, timers/signals, and deterministic replay, and in 2026 it ships
+  native integrations with Google ADK, the OpenAI Agents SDK, AWS Strands,
+  LangGraph, LangSmith, the Vercel AI SDK, and the Gemini SDK. The README now
+  states the boundary explicitly:
+  - **Temporal owns** durability, replay, timers, and long-running human waits.
+  - **agent-kernel owns** priority/preemptive scheduling, token/cost/concurrency
+    budgets, per-agent resource limits, deadlock detection, and
+    framework-agnostic agent execution underneath orchestrators.
+  - `PersistentTaskQueue` is clarified as an at-least-once task journal, not a
+    workflow checkpoint or replay mechanism.
+  - A composition example shows a Temporal workflow activity calling
+    `kernel.schedule(...)`, plus a rule of thumb for choosing between them.
+
 ## [0.11.0] - 2026-11-01
 
 ### Added
