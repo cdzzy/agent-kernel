@@ -2,6 +2,21 @@
 
 All notable changes to AgentKernel are documented in this file.
 
+## [Unreleased]
+
+### Docs
+
+- **OpenTelemetry tracing guide**: add an「OpenTelemetry Tracing」section to
+  `docs/packages/agent-kernel.md` — provider registration, `runTaskInSpan`,
+  the `agent.*` / `task.*` attribute conventions, no-op-safety and idempotent
+  setup, plus a cross-service propagation example
+  (`inject` / `extract` / `runInSpanAsChild` with `KernelHttpEndpoint`) that
+  the README did not cover. Roadmap item checked (v0.11.0).
+- **zh-CN sync**: add the「OpenTelemetry 链路追踪」section to `README_zh.md`
+  mirroring the English guide, and update the roadmap.
+- Add the `Kernel → tracing` row to the bridge table in
+  `docs/architecture/integrations.md`.
+
 ## [0.11.2] - 2026-11-06
 
 ### Security

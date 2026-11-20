@@ -36,6 +36,7 @@
 - 🔍 **死锁检测器** — 自动检测并解决循环等待问题
 - 🎯 **优先级仲裁器** — 解决竞争智能体之间的资源冲突
 - 🔄 **并发原语** — 提供互斥锁、信号量和屏障，用于智能体协调
+- 🔭 **OpenTelemetry 链路追踪** — agent/task 链路 span、W3C Trace Context 传播、跨 `await` 的异步父子链接（v0.11.0）
 
 ---
 
@@ -166,6 +167,45 @@ const scheduler = new Scheduler({
 
 ---
 
+## OpenTelemetry 链路追踪
+
+AgentKernel 会发出标准的 OpenTelemetry span，因此智能体与任务的工作会出现在你已有的任意后端中（Jaeger、Tempo、Datadog、Grafana、Honeycomb 等）。该集成基于稳定的 `@opentelemetry/api` 加一个用于异步上下文的辅助包构建，没有任何厂商 SDK 锁定。
+
+```typescript
+import { trace } from '@opentelemetry/api';
+import { TracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { KernelTracer } from 'agent-kernel';
+
+// 1. 注册 Provider —— 任意导出器都可用。
+trace.setGlobalTracerProvider(
+  new TracerProvider({
+    spanProcessors: [new SimpleSpanProcessor({ exporter: new OTLPTraceExporter() })],
+  }),
+);
+
+// 2. 用 span 包裹任务执行。
+const tracer = new KernelTracer({ serviceName: 'my-agent-fleet' });
+
+await tracer.runTaskInSpan('task-42', 'execute', async (span) => {
+  span.setAttribute('task.priority', 'high');
+  return await scheduler.submit(task);
+});
+```
+
+**你能得到什么**
+
+- `runInSpan` / `runTaskInSpan` — 为任意同步或异步工作单元创建 span，自动结束并标记为 `OK` 或 `ERROR`，同时记录异常。异常会被重新抛出，因此你的控制流不受影响。
+- `startAgentSpan(agentId, action)` / `startTaskSpan(taskId, operation)` — 手动创建名为 `agent.<action>` / `task.<operation>` 的 span，并携带 `agent.id` / `task.id` 标签。更进阶的用法请使用 `tracer.getTracer()`。
+- **跨 `await` 的父子链接** — `runInSpan` 通过 AsyncLocalStorage 上下文管理器激活 span，因此在包裹函数内启动的 span 会嵌套在它之下，而不是开启一条新 trace。
+- **W3C Trace Context 传播** — `inject(carrier)` 写入标准的 `traceparent` 头，`extract(carrier)` 读回一个，`runInSpanAsChild(parent, …)` 继续远端 trace。这是该规范的零依赖实现（无需 `@opentelemetry/core`）。
+- **无 Provider 时安全** — 在注册 `TracerProvider` 之前，所有调用都会降级为 no-op，因此链路追踪是可选开启的，不增加运行时要求。
+- **导入时无全局副作用** — AsyncLocalStorage 上下文管理器与 W3C 传播器按幂等方式安装，并且仅在你首次构造 `KernelTracer` 时生效。已在运行 OpenTelemetry NodeSDK 的主机不受影响。
+
+属性命名遵循 `agent.*` / `task.*` 约定，便于仪表盘一致查询：`agent.id`、`agent.action`、`task.id`、`task.operation`，外加你透传的任何属性。
+
+---
+
 ## 与 LangGraph / Microsoft Agent Framework / AgentScope 的关系
 
 agent-kernel **不是**又一个编排框架 —— 它是这些编排框架之下的运行时层。
@@ -263,7 +303,7 @@ export async function supportWorkflow(ticket: Ticket): Promise<string> {
 - [x] **工作窃取调度器**（`WorkStealingPool` — 空闲工作节点从最繁忙的队列窃取任务，经内核重新均衡）✅（v0.4.0）
 - [x] **持久化任务队列**（`PersistentTaskQueue` — 预写日志、至少一次恢复、依赖重映射）✅（v0.6.0）
 - [x] **分布式模式**（`KernelHttpEndpoint` + `RemoteKernelClient` — 通过 HTTP 暴露内核，在远程机器上以命名处理器执行任务）✅（v0.7.0）
-- [ ] OpenTelemetry 链路追踪集成
+- [x] **OpenTelemetry 链路追踪集成**（`KernelTracer` — agent/task 链路 span、W3C `traceparent` 传播、AsyncLocalStorage 上下文管理器）✅（v0.11.0）
 
 ---
 

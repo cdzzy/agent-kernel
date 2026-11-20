@@ -5,6 +5,7 @@ All bridges between packages use **duck-typed interfaces** (structural typing) �
 | Bridge | Direction | Since |
 |--------|-----------|-------|
 | Kernel → audit | agent-kernel `attachTraceShield` → traceshield `TraceRecorder` | kernel v0.5.0 |
+| Kernel → tracing | agent-kernel `KernelTracer` → OpenTelemetry API (W3C Trace Context) | kernel v0.11.0 |
 | Bus → memory | agentlink `attach_memory` → engram MCP server | link v0.5.0 |
 | Flagship example | kernel + traceshield + engram | kernel `examples/flagship` |
 
